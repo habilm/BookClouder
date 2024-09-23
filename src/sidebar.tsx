@@ -1,38 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css"
-import {  getCurrentUser, saveCurrentUser, UserData }  from "./helpers/storage";
 
 const Popup = () => {
   const [count, setCount] = useState(0);
-
-  const [currentUser, storeCurrentUser] = useState<UserData|undefined>(undefined);
+  const [currentURL, setCurrentURL] = useState<string>();
 
   useEffect(() => {
-    chrome.action.setBadgeText({ text: "1" });
+    chrome.action.setBadgeText({ text: count.toString() });
   }, [count]);
 
-  async function saveUser(user: UserData):Promise<void>{
-    storeCurrentUser(user);
-    await saveCurrentUser(user)
-  }
-
   useEffect(() => {
-   
-    ( async () => {
-      const user = await getCurrentUser();
-      console.log(user);
-      if(user){
-        storeCurrentUser(user)
-      }
-    })()
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      setCurrentURL(tabs[0].url);
+    });
   }, []);
 
   const changeBackground = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       const tab = tabs[0];
       if (tab.id) {
-        
         chrome.tabs.sendMessage(
           tab.id,
           {
@@ -48,8 +35,18 @@ const Popup = () => {
 
   return (
     <>
-      {currentUser?<>Logged User</>:<>Not Logged In</>}
-      <button onClick={ async ()=>{ await saveUser({avatarUrl:"/",token:"w23432",userName:"fsad"})}}>Login Now</button>
+    <h1 className="text-center bg-red-500">This is Sidebar</h1>
+      <ul style={{ minWidth: "700px" }}>
+        <li>Current URL -: {currentURL}</li>
+        <li>Current Time: {new Date().toLocaleTimeString()}</li>
+      </ul>
+      <button
+        onClick={() => setCount(count + 1)}
+        style={{ marginRight: "5px" }}
+      >
+        count up
+      </button>
+      <button onClick={changeBackground}>change background</button>
     </>
   );
 };

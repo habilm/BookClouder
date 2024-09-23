@@ -1,6 +1,6 @@
-# Chrome Extension TypeScript Starter
+# BookClouder Chrome Extension
 
-![build](https://github.com/chibat/chrome-extension-typescript-starter/workflows/build/badge.svg)
+![build]()
 
 Chrome Extension, TypeScript and Visual Studio Code
 
