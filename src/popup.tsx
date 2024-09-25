@@ -1,55 +1,109 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import "./styles.css"
-import {  getCurrentUser, saveCurrentUser, UserData }  from "./helpers/storage";
+import "./styles.css";
+import { saveCurrentUser, UserData } from "./helpers/UserManager";
+import LinksManger, { Link } from "./helpers/LinksManager";
+import LinkCard from "./components/LinkCard";
 
 const Popup = () => {
-  const [count, setCount] = useState(0);
+  const [link, setLink] = useState<Link | false>(false);
+  const [linkAdded, setLinkAdded] = useState<boolean>(false);
+  const [addedMessage, setAddedMessage] = useState("");
+  const [linkExists, SetLinkExists] = useState(false);
 
-  const [currentUser, storeCurrentUser] = useState<UserData|undefined>(undefined);
+  const [currentUser, storeCurrentUser] = useState<UserData | undefined>(
+    undefined
+  );
 
-  useEffect(() => {
-    chrome.action.setBadgeText({ text: "1" });
-  }, [count]);
+  useEffect(() => {}, [linkAdded]);
 
-  async function saveUser(user: UserData):Promise<void>{
+  async function saveUser(user: UserData): Promise<void> {
     storeCurrentUser(user);
-    await saveCurrentUser(user)
+    await saveCurrentUser(user);
   }
 
   useEffect(() => {
-   
-    ( async () => {
-      const user = await getCurrentUser();
-      console.log(user);
-      if(user){
-        storeCurrentUser(user)
+    (async () => {
+      const linkManager = new LinksManger();
+      const tab = await chrome.tabs.query({ active: true });
+      if (tab.length) {
+        SetLinkExists((await linkManager.getByURL(tab[0].url || "")) !== false);
+        const toSave = {
+          title: tab[0].title || "unknown",
+          url: tab[0].url || "/#unknown",
+          icon: tab[0].favIconUrl || "",
+          tags: ["save"],
+        };
+
+        setLink(toSave);
+      } else {
+        // Need to add error handler
       }
-    })()
+    })();
   }, []);
 
-  const changeBackground = () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      const tab = tabs[0];
-      if (tab.id) {
-        
-        chrome.tabs.sendMessage(
-          tab.id,
-          {
-            color: "#555555",
-          },
-          (msg) => {
-            console.log("result message:", msg);
-          }
-        );
+  const saveLink = async () => {
+    const tab = await chrome.tabs.query({ active: true });
+    if (tab.length && link) {
+      const linkManager = new LinksManger();
+
+      const saved = await linkManager.save(link);
+
+      if (typeof saved === "string") {
+        setAddedMessage(saved);
+      } else {
+        setAddedMessage("Link Saved Successfully 🎉");
+        setLink(saved);
+        setLinkAdded(true);
+        SetLinkExists(true);
       }
-    });
+    }
   };
+  async function openSideBar() {
+    const thisWindow = await chrome.windows.getCurrent({ populate: true });
+    // const thisWindow = chrome.
+    chrome.sidePanel.open({
+      windowId: thisWindow.id || 0,
+    });
+  }
 
   return (
     <>
-      {currentUser?<>Logged User</>:<>Not Logged In</>}
-      <button onClick={ async ()=>{ await saveUser({avatarUrl:"/",token:"w23432",userName:"fsad"})}}>Login Now</button>
+      <div className="min-w-96 pb-4">
+        {linkAdded && (
+          <div className="text-center">
+            <h1 className="bg-green-600 text-white text-xl py-2">
+              {addedMessage}
+            </h1>
+          </div>
+        )}
+        {link ? (
+          <>
+            <div className="m-4">
+              <LinkCard link={link} showActions={linkExists} />
+            </div>
+          </>
+        ) : null}
+
+        <div className="mt-3 text-center flex flex-col justify-center items-center gap-5">
+          {!linkExists && (
+            <button
+              type="button"
+              className="btn btn-success "
+              onClick={saveLink}
+            >
+              Save
+            </button>
+          )}
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={openSideBar}
+          >
+            View All
+          </button>
+        </div>
+      </div>
     </>
   );
 };

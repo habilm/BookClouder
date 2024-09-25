@@ -1,18 +1,13 @@
-import { getCurrentUser } from "./helpers/storage";
-
-function polling() {
-  // console.log("polling");
-  setTimeout(polling, 1000 * 30);
-}
-
-polling();
-
-chrome.action.onClicked.addListener(async function (e) {
-  console.error("User not found");
-  const user = await getCurrentUser();
-  if (user) {
-    chrome.sidePanel.setPanelBehavior({});
-  } else {
-    chrome.tabs.create({ url: "https://bookclouder.com/profile/" + "off" });
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command === "open-side-panel") {
+    // Open the side panel programmatically
+    const thisWindow = await chrome.windows.getCurrent({ populate: true });
+    chrome.sidePanel.open({
+      windowId: thisWindow.id || 0,
+    });
   }
-})
+});
+
+chrome.runtime.onMessage.addListener((message) => {
+  console.log("messageage");
+});
