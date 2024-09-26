@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import LinksManger, { Link } from "../helpers/LinksManager";
 import { Search, X } from "lucide-react";
 import LinkCard from "./LinkCard";
-import UserManager from "../helpers/UserManager";
+
 export default function MainPage() {
   const [inputSearchText, setSearchText] = useState("");
   const [userLinks, setUserLinks] = useState<Link[]>([]);
@@ -14,17 +14,15 @@ export default function MainPage() {
       inputRef.current?.focus();
       const linkManager = new LinksManger();
       const allLinks = await linkManager.getAll();
-
       setUserLinks(allLinks);
-      linkManager.onSave(async function () {
-        const linkManager = new LinksManger();
+      linkManager.onChange(async function () {
         const allLinks = await linkManager.getAll();
         setUserLinks(allLinks);
       });
     })();
   }, []);
 
-  async function onSearch(event: any) {
+  async function onSearch(event: ChangeEvent<HTMLInputElement>) {
     setSearchText(event.target.value);
     const linkManager = new LinksManger();
     const allLinks = await linkManager.getAll();
@@ -76,7 +74,7 @@ export default function MainPage() {
 
       <div>
         {userLinks.length
-          ? userLinks.map((link, key) => <LinkCard key={key} link={link} />)
+          ? userLinks.map((link) => <LinkCard key={link.url} link={link} />)
           : !isSearching && (
               <>
                 <div className=" text-center text-gray-9 mt-10">

@@ -10,16 +10,11 @@ export default function LinkCard({
   showActions?: boolean;
 }) {
   const [isDeleting, setIsDeleting] = React.useState(false);
-  const [isDeleted, setIsDeleted] = React.useState(false);
+
   const [isCopied, setIsCopied] = React.useState(false);
   function deleteLink(link: string) {
     const linkManger = new LinksManger();
     linkManger.delete(link);
-    setIsDeleted(true);
-  }
-
-  if (isDeleted) {
-    return null;
   }
 
   return (
@@ -41,7 +36,9 @@ export default function LinkCard({
             <div className="link-title-box ps-4">
               <h3 className=" text-md font-bold">{link.title}</h3>
               <p className=" text-xs " style={{ lineBreak: "anywhere" }}>
-                {link.url}
+                {link.url.length > 200
+                  ? link.url.slice(0, 200) + "..."
+                  : link.url}
               </p>
               <div>
                 <ul>

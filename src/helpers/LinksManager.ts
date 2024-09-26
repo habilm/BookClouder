@@ -53,16 +53,11 @@ export default class LinksManger {
     await chrome.storage.local.set({ [this.storageKey]: allLinks });
   }
 
-  async onSave(callback: () => void) {
-    chrome.storage.onChanged.addListener((changes, namespace) => {
-      console.log("changed", namespace);
+  async onChange(callback: () => void) {
+    chrome.storage.onChanged.addListener((changes) => {
       if (changes[this.storageKey]) {
         callback();
       }
     });
   }
-
-  setTags(url: string) {}
-  createTag(tag: string) {}
-  deleteTag(tag: string) {}
 }
