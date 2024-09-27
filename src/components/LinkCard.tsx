@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import LinksManger, { Link } from "../helpers/LinksManager";
-import { Copy, CopyCheck, Trash2 } from "lucide-react";
+import { Copy, CopyCheck, Tags, Trash2, X } from "lucide-react";
+import LinkCardTagSelector from "./LinkCardTagSelector";
 
 export default function LinkCard({
   link,
@@ -9,12 +10,17 @@ export default function LinkCard({
   link: Link;
   showActions?: boolean;
 }) {
-  const [isDeleting, setIsDeleting] = React.useState(false);
-
-  const [isCopied, setIsCopied] = React.useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const [isAddingTags, setIsAddingTags] = useState(false);
   function deleteLink(link: string) {
     const linkManger = new LinksManger();
     linkManger.delete(link);
+    setIsDeleted(true);
+  }
+  if (isDeleted) {
+    return null;
   }
 
   return (
@@ -24,7 +30,7 @@ export default function LinkCard({
           isDeleting && "delete-box-active"
         }`}
       >
-        <a href={link.url} target="_blank" className="">
+        <a href={link.url} target="_blank" className="" rel="noreferrer">
           <div className="w-full flex">
             <div className="w-10">
               <img
@@ -41,13 +47,25 @@ export default function LinkCard({
                   : link.url}
               </p>
               <div>
-                <ul>
+                <div className="pt-2">
                   {link.tags.map((tag, index) => (
-                    <li key={index} className="tag  text-xs line">
-                      {tag}
-                    </li>
+                    <div key={index} className="tag  text-xs">
+                      <span className="tag ">{tag}</span>
+                      <span className="badge-remove ">
+                        <X size={12} />
+                      </span>
+                    </div>
                   ))}
-                </ul>
+                </div>
+                <button
+                  className="tag text-white bg-primary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsAddingTags(true);
+                  }}
+                >
+                  Add Tags <Tags size={14} />
+                </button>
               </div>
             </div>
             {showActions && (
@@ -120,6 +138,7 @@ export default function LinkCard({
             </div>
           </>
         )}
+        {isAddingTags && <LinkCardTagSelector url={link.url} />}
       </div>
     </>
   );

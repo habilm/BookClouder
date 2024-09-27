@@ -1,7 +1,8 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import LinksManger, { Link } from "../helpers/LinksManager";
 import { Search, X } from "lucide-react";
 import LinkCard from "./LinkCard";
+import NavBar from "./NavBar";
 
 export default function MainPage() {
   const [inputSearchText, setSearchText] = useState("");
@@ -16,17 +17,16 @@ export default function MainPage() {
       const allLinks = await linkManager.getAll();
       setUserLinks(allLinks);
       linkManager.onChange(async function () {
-        const allLinks = await linkManager.getAll();
-        setUserLinks(allLinks);
+        await onSearch();
       });
     })();
   }, []);
 
-  async function onSearch(event: ChangeEvent<HTMLInputElement>) {
-    setSearchText(event.target.value);
+  async function onSearch() {
+    setSearchText(inputRef?.current?.value || "");
     const linkManager = new LinksManger();
     const allLinks = await linkManager.getAll();
-    const searchText = event.target.value.toLowerCase();
+    const searchText = (inputRef?.current?.value || "").toLowerCase();
     setIsSearching(!!searchText.length);
 
     const filteredLinks = allLinks.filter(
@@ -46,9 +46,9 @@ export default function MainPage() {
     setUserLinks(allLinks);
   }
   return (
-    <div className="p-4 h-screen">
-      <h1 className="text-center text-xl ">Your BookClouds</h1>
-      <div className="py-4 text-center flex gap-4 mx-auto justify-center sticky top-0 bg-slate-2 ">
+    <div className="p-4 min-h-screen">
+      <NavBar />
+      <div className="py-4 text-center flex gap-4 mx-auto justify-center sticky top-0 bg-slate-2 z-30">
         <input
           className="input-rounded input input-sm"
           onChange={onSearch}

@@ -1,0 +1,75 @@
+import { getRandomColor, getRandomString } from "./utitlity";
+
+export type TypeTag = {
+  id: string;
+  name: string;
+  color?: string;
+  time?: Date;
+};
+
+export default class TagsManager {
+  storageKey: string = "tags";
+
+  async getByID(id: string): Promise<TypeTag | false> {
+    const tags = await this.getAll();
+    const tag = tags.find((tag) => tag.id === id);
+    return tag || false;
+  }
+
+  async getAll(): Promise<TypeTag[] | []> {
+    const storage = await chrome.storage.local.get(this.storageKey);
+    if (!storage[this.storageKey]) return [];
+
+    return storage[this.storageKey] as TypeTag[];
+  }
+
+  // Save or Update if pass the ID
+  async save(
+    tag: Omit<TypeTag, "id"> & Partial<Pick<TypeTag, "id">>
+  ): Promise<false | TypeTag | string> {
+    let allTags = await this.getAll();
+
+    if (tag.name.trim() === "") {
+      throw new Error("Tag name can't be empty " + tag.id);
+    }
+
+    if (tag.id) {
+      const existsIndex = allTags.findIndex((t) => t.id === tag.id);
+      if (existsIndex) {
+        allTags[existsIndex] = {
+          ...(tag as TypeTag),
+        };
+      } else {
+        throw new Error("Could not find tag with id " + tag.id);
+      }
+    } else {
+      tag.id = getRandomString();
+      tag.color = tag.color || getRandomColor();
+      allTags = [tag as TypeTag, ...allTags];
+    }
+
+    try {
+      await chrome.storage.local.set({ [this.storageKey]: allTags });
+      return tag as TypeTag;
+    } catch (e) {
+      console.error("Error saving Tag", e);
+      return false;
+    }
+  }
+
+  async delete(id: string) {
+    const allTags = await this.getAll();
+    const index = allTags.findIndex((tag) => tag.id === id);
+    if (index === -1) return false;
+    allTags.splice(index, 1);
+    await chrome.storage.local.set({ [this.storageKey]: allTags });
+  }
+
+  async onChange(callback: () => void) {
+    chrome.storage.onChanged.addListener((changes) => {
+      if (changes[this.storageKey]) {
+        callback();
+      }
+    });
+  }
+}
