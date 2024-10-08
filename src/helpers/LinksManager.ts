@@ -1,12 +1,19 @@
-export type Link = {
+import TagsManager, { TypeTag } from "./TagsManager";
+
+export interface Link {
   url: string;
   title: string;
   icon?: string;
-  tags: string[];
+  tagIDs: string[];
+  tags: TypeTag[] | [];
   time?: Date;
-};
+}
 
 export default class LinksManger {
+  constructor() {
+    this.tagsManger = new TagsManager();
+  }
+  tagsManger: TagsManager;
   storageKey: string = "links";
   blackListedStrings: string[] = ["extension://", "edge://"];
 
@@ -20,7 +27,18 @@ export default class LinksManger {
     const storage = await chrome.storage.local.get(this.storageKey);
     if (!storage[this.storageKey]) return [];
 
-    return storage[this.storageKey] as Link[];
+    const allTags = await this.tagsManger.getAllIdIndexed();
+
+    storage[this.storageKey] = storage[this.storageKey].map((links: Link) => {
+      links.tags =
+        links.tagIDs &&
+        links.tagIDs.map((tagId) =>
+          typeof tagId == "string" ? allTags[tagId] : tagId
+        );
+      return links;
+    });
+
+    return storage[this.storageKey];
   }
 
   async save(Link: Link): Promise<false | Link | string> {
@@ -43,6 +61,16 @@ export default class LinksManger {
       console.error("Error saving LINK", e);
       return false;
     }
+  }
+
+  async addTags(url: string, tags: string[]) {
+    const allLinks = await this.getAll();
+    const linkIndex = allLinks.findIndex((link) => link.url === url);
+    if (linkIndex === -1) return false;
+    allLinks[linkIndex].tagIDs = tags;
+    console.log(allLinks[linkIndex]);
+    await chrome.storage.local.set({ [this.storageKey]: allLinks });
+    return true;
   }
 
   async delete(url: string) {

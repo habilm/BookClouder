@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
-import { saveCurrentUser, UserData } from "./helpers/UserManager";
 import LinksManger, { Link } from "./helpers/LinksManager";
 import LinkCard from "./components/LinkCard";
 
@@ -11,28 +10,25 @@ const Popup = () => {
   const [addedMessage, setAddedMessage] = useState("");
   const [linkExists, SetLinkExists] = useState(false);
 
-  const [currentUser, storeCurrentUser] = useState<UserData | undefined>(
-    undefined
-  );
-
   useEffect(() => {}, [linkAdded]);
-
-  async function saveUser(user: UserData): Promise<void> {
-    storeCurrentUser(user);
-    await saveCurrentUser(user);
-  }
 
   useEffect(() => {
     (async () => {
       const linkManager = new LinksManger();
-      const tab = await chrome.tabs.query({ active: true });
+      const thisWindow = await chrome.windows.getCurrent();
+      const tab = await chrome.tabs.query({
+        active: true,
+        windowId: thisWindow.id,
+      });
       if (tab.length) {
-        SetLinkExists((await linkManager.getByURL(tab[0].url || "")) !== false);
+        const savedLink = await linkManager.getByURL(tab[0].url || "");
+        SetLinkExists(savedLink !== false);
         const toSave = {
           title: tab[0].title || "unknown",
           url: tab[0].url || "/#unknown",
           icon: tab[0].favIconUrl || "",
-          tags: ["save"],
+          tagIDs: savedLink !== false ? savedLink.tagIDs : [],
+          tags: savedLink !== false ? savedLink.tags : [],
         };
 
         setLink(toSave);

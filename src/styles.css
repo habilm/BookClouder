@@ -4,7 +4,9 @@
 
 @layer utilities {
 }
-
+.link-card .tag.selected {
+  @apply outline-2 outline outline-white scale-95;
+}
 @layer component {
   .link-card {
     @apply bg-gray-300 text-black hover:bg-gray-11  rounded-lg shadow-md mb-4 block w-full p-2 transition-all;
@@ -22,12 +24,14 @@
     display: block !important;
   }
   .tag {
-    @apply overflow-hidden text-xs inline-flex gap-2 rounded-full text-white items-center !px-2;
+    font-size: 10px !important;
+    @apply overflow-hidden  !leading-3 inline-flex gap-2 rounded-full text-white items-center !px-2;
   }
   .tag span {
     @apply uppercase;
     padding: 0 3px 3px 6px;
   }
+
   .tag .badge-remove {
     padding-inline-start: 3px;
     @apply inline-flex h-full pe-1 !border-l !border-solid !border-white border-opacity-30 hover:bg-red-400  items-center;

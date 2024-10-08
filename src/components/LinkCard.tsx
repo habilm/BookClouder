@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LinksManger, { Link } from "../helpers/LinksManager";
-import { Copy, CopyCheck, Tags, Trash2, X } from "lucide-react";
+import { Copy, CopyCheck, Tags, Trash2 } from "lucide-react";
 import LinkCardTagSelector from "./LinkCardTagSelector";
+import Tag from "./Tag";
 
 export default function LinkCard({
   link,
@@ -22,6 +23,13 @@ export default function LinkCard({
   if (isDeleted) {
     return null;
   }
+
+  useEffect(() => {
+    const linkManager = new LinksManger();
+    linkManager.onChange(async function () {
+      setIsCopied(true);
+    });
+  }, []);
 
   return (
     <>
@@ -47,25 +55,24 @@ export default function LinkCard({
                   : link.url}
               </p>
               <div>
-                <div className="pt-2">
-                  {link.tags.map((tag, index) => (
-                    <div key={index} className="tag  text-xs">
-                      <span className="tag ">{tag}</span>
-                      <span className="badge-remove ">
-                        <X size={12} />
-                      </span>
-                    </div>
+                <div className="pt-2 flex flex-wrap gap-1">
+                  {link.tags?.map((tag) => (
+                    <Tag
+                      key={tag.id}
+                      tag={tag}
+                      className={"cursor-pointer justify-center "}
+                    />
                   ))}
+                  <button
+                    className="tag text-white bg-primary"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsAddingTags(true);
+                    }}
+                  >
+                    Manage Tags <Tags size={14} />
+                  </button>
                 </div>
-                <button
-                  className="tag text-white bg-primary"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsAddingTags(true);
-                  }}
-                >
-                  Add Tags <Tags size={14} />
-                </button>
               </div>
             </div>
             {showActions && (
@@ -138,7 +145,15 @@ export default function LinkCard({
             </div>
           </>
         )}
-        {isAddingTags && <LinkCardTagSelector url={link.url} />}
+        {isAddingTags && (
+          <LinkCardTagSelector
+            onClose={() => {
+              setIsAddingTags(false);
+            }}
+            savedTagIds={link.tagIDs}
+            url={link.url}
+          />
+        )}
       </div>
     </>
   );

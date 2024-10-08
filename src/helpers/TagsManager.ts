@@ -22,6 +22,18 @@ export default class TagsManager {
 
     return storage[this.storageKey] as TypeTag[];
   }
+  async getAllIdIndexed(): Promise<Record<string, TypeTag>> {
+    const storage = await chrome.storage.local.get(this.storageKey);
+    if (!storage[this.storageKey]) return {};
+
+    const allTags = storage[this.storageKey];
+    const idIndexedTags: Record<string, TypeTag> = {};
+    allTags.forEach((tag: TypeTag) => {
+      idIndexedTags[tag.id] = tag;
+    });
+
+    return idIndexedTags;
+  }
 
   // Save or Update if pass the ID
   async save(

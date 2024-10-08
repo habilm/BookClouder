@@ -5,9 +5,16 @@ import { X } from "lucide-react";
 type TagProps = {
   tag: TypeTag;
   onDelete?: (tagId: string) => void;
+  className?: string;
+  onClick?: (tag: TypeTag) => void;
 };
 
-export default function Tag({ tag, onDelete }: TagProps) {
+export default function Tag({
+  tag,
+  onDelete,
+  className,
+  onClick = () => {},
+}: TagProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function confirmDelete() {
@@ -19,8 +26,11 @@ export default function Tag({ tag, onDelete }: TagProps) {
     <>
       <div
         key={tag.id}
-        className="tag text-xs min-w-20 relative"
+        className={className + " tag text-xs min-w-20 relative"}
         style={{ background: tag.color }}
+        onClick={() => {
+          onClick(tag);
+        }}
       >
         <span className="tag ">{tag.name}</span>
         {onDelete && (
