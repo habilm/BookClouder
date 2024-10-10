@@ -5,6 +5,8 @@ export type TypeTag = {
   name: string;
   color?: string;
   time?: Date;
+  pin?: boolean;
+  usedCount?: number;
 };
 
 const eventListeners: (() => void)[] = [];

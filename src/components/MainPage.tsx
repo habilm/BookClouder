@@ -32,7 +32,10 @@ export default function MainPage() {
     const filteredLinks = allLinks.filter(
       (link) =>
         link.title.toLowerCase().includes(searchText) ||
-        link.url.toLowerCase().includes(searchText)
+        link.url.toLowerCase().includes(searchText) ||
+        link.tags?.some(
+          (tag) => tag && tag.name?.toLowerCase().includes(searchText)
+        )
     );
     setUserLinks(filteredLinks);
   }
