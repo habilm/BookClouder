@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
-import TagsManager, { TypeTag } from "../helpers/TagsManager";
-import Tag from "./Tag";
+import TagsManager, { TypeTag } from "../../helpers/TagsManager";
+import Tag from "../Tag";
 import { XCircle } from "lucide-react";
-import LinksManger from "../helpers/LinksManager";
+import LinksManger from "../../helpers/LinksManager";
 
 type TypeLinkTagSelector = {
   url: string;
   onClose: () => void;
   savedTagIds: string[];
+  onUpdate: () => void;
 };
 
 function LinkCardTagSelector({
   url,
   onClose,
   savedTagIds,
+  onUpdate,
 }: TypeLinkTagSelector) {
   const [addedTags, setAddedTags] = useState<TypeTag[] | []>([]);
   const [availableTags, setAvailableTags] = useState<TypeTag[] | []>([]);
@@ -25,17 +27,13 @@ function LinkCardTagSelector({
       const allTags = await tags.getAll();
 
       setAvailableTags(allTags);
-      tags.onChange(async () => {
-        const allTags = await tags.getAll();
-        setAvailableTags(() => {
-          return allTags.filter((t) => !addedTagsIds.includes(t.id));
-        });
-      });
+
+      onUpdate();
     })();
   }, [addedTagsIds]);
 
   useEffect(() => {
-    setAddedTagsIds(savedTagIds);
+    setAddedTagsIds(savedTagIds || []);
   }, []);
 
   async function toggleAdd(tag: TypeTag) {
@@ -48,9 +46,7 @@ function LinkCardTagSelector({
       } else {
         newList = [...addedTagsIds, tag.id];
       }
-      LM.addTags(url, newList).then((tags) => {
-        console.log(tags);
-      });
+      LM.addTags(url, newList);
       return newList;
     });
   }
@@ -58,12 +54,6 @@ function LinkCardTagSelector({
   (async () => {
     const allTags = await tags.getAll();
     setAvailableTags(allTags);
-    tags.onChange(async () => {
-      const allTags = await tags.getAll();
-      setAvailableTags(() => {
-        return allTags.filter((t) => !addedTagsIds.includes(t.id));
-      });
-    });
   })();
   return (
     <div className="absolute top-0 left-0 bg-secondary bg-opacity-80 backdrop-blur-sm w-full h-full flex p-2">

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import LinksManger, { Link } from "../helpers/LinksManager";
 import { Search, X } from "lucide-react";
-import LinkCard from "./LinkCard";
+import LinkCard from "./LinkCard/LinkCard";
 import NavBar from "./NavBar";
 
 export default function MainPage() {

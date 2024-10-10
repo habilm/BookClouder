@@ -7,6 +7,16 @@ export type TypeTag = {
   time?: Date;
 };
 
+const eventListeners: (() => void)[] = [];
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes["tags"]) {
+    console.log(eventListeners, "events tags");
+    eventListeners.forEach((event) => {
+      event();
+    });
+  }
+});
+
 export default class TagsManager {
   storageKey: string = "tags";
 
@@ -78,10 +88,13 @@ export default class TagsManager {
   }
 
   async onChange(callback: () => void) {
-    chrome.storage.onChanged.addListener((changes) => {
-      if (changes[this.storageKey]) {
-        callback();
-      }
-    });
+    if (eventListeners.indexOf(callback) !== -1) return;
+    eventListeners.push(callback);
+  }
+  removeEvent(callback: () => void) {
+    const index = eventListeners.indexOf(callback);
+    if (index !== -1) {
+      eventListeners.splice(index, 1);
+    }
   }
 }

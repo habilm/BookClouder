@@ -34,6 +34,7 @@ function TagsModal() {
   }
 
   async function onTagDelete(tagsId: string) {
+    console.log("onTagDelete");
     const tagManager = new TagsManager();
     await tagManager.delete(tagsId);
     await getTags();

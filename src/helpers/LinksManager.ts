@@ -9,6 +9,17 @@ export interface Link {
   time?: Date;
 }
 
+const eventListeners: (() => void)[] = [];
+
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes["links"]) {
+    console.log(eventListeners, "events Links");
+    eventListeners.forEach((event) => {
+      event();
+    });
+  }
+});
+
 export default class LinksManger {
   constructor() {
     this.tagsManger = new TagsManager();
@@ -68,7 +79,7 @@ export default class LinksManger {
     const linkIndex = allLinks.findIndex((link) => link.url === url);
     if (linkIndex === -1) return false;
     allLinks[linkIndex].tagIDs = tags;
-    console.log(allLinks[linkIndex]);
+
     await chrome.storage.local.set({ [this.storageKey]: allLinks });
     return true;
   }
@@ -82,10 +93,13 @@ export default class LinksManger {
   }
 
   async onChange(callback: () => void) {
-    chrome.storage.onChanged.addListener((changes) => {
-      if (changes[this.storageKey]) {
-        callback();
-      }
-    });
+    if (eventListeners.indexOf(callback) !== -1) return;
+    eventListeners.push(callback);
+  }
+  removeEvent(callback: () => void) {
+    const index = eventListeners.indexOf(callback);
+    if (index !== -1) {
+      eventListeners.splice(index, 1);
+    }
   }
 }

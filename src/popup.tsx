@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 import LinksManger, { Link } from "./helpers/LinksManager";
-import LinkCard from "./components/LinkCard";
+import LinkCard from "./components/LinkCard/LinkCard";
 
 const Popup = () => {
   const [link, setLink] = useState<Link | false>(false);

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-import LinksManger, { Link } from "../helpers/LinksManager";
-import { Copy, CopyCheck, Tags, Trash2 } from "lucide-react";
+import React, { useState } from "react";
+import LinksManger, { Link } from "../../helpers/LinksManager";
+import { Copy, CopyCheck, Trash2 } from "lucide-react";
 import LinkCardTagSelector from "./LinkCardTagSelector";
-import Tag from "./Tag";
+
+import LinkCardTags from "./LinkCardTags";
 
 export default function LinkCard({
   link,
@@ -15,21 +16,25 @@ export default function LinkCard({
   const [isDeleted, setIsDeleted] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isAddingTags, setIsAddingTags] = useState(false);
+  const [theLink, setTheLink] = useState(link);
   function deleteLink(link: string) {
     const linkManger = new LinksManger();
     linkManger.delete(link);
     setIsDeleted(true);
   }
+
   if (isDeleted) {
     return null;
   }
 
-  useEffect(() => {
-    const linkManager = new LinksManger();
-    linkManager.onChange(async function () {
-      setIsCopied(true);
-    });
-  }, []);
+  async function refreshCard() {
+    const linkManger = new LinksManger();
+    const updatedLink = await linkManger.getByURL(link.url);
+    if (!updatedLink === false) {
+      setTheLink(updatedLink);
+    }
+  }
+  console.log("Updated link");
 
   return (
     <>
@@ -38,42 +43,22 @@ export default function LinkCard({
           isDeleting && "delete-box-active"
         }`}
       >
-        <a href={link.url} target="_blank" className="" rel="noreferrer">
+        <a href={theLink.url} target="_blank" className="" rel="noreferrer">
           <div className="w-full flex">
             <div className="w-10">
               <img
-                src={link.icon}
+                src={theLink.icon}
                 alt="icon"
                 className="w-10 h-10 rounded-lg"
               />
             </div>
             <div className="link-title-box ps-4">
-              <h3 className=" text-md font-bold">{link.title}</h3>
+              <h3 className=" text-md font-bold">{theLink.title}</h3>
               <p className=" text-xs " style={{ lineBreak: "anywhere" }}>
-                {link.url.length > 200
-                  ? link.url.slice(0, 200) + "..."
-                  : link.url}
+                {theLink.url.length > 200
+                  ? theLink.url.slice(0, 200) + "..."
+                  : theLink.url}
               </p>
-              <div>
-                <div className="pt-2 flex flex-wrap gap-1">
-                  {link.tags?.map((tag) => (
-                    <Tag
-                      key={tag.id}
-                      tag={tag}
-                      className={"cursor-pointer justify-center "}
-                    />
-                  ))}
-                  <button
-                    className="tag text-white bg-primary"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsAddingTags(true);
-                    }}
-                  >
-                    Manage Tags <Tags size={14} />
-                  </button>
-                </div>
-              </div>
             </div>
             {showActions && (
               <div className="w-10 flex items-center justify-center gap-2 flex-col">
@@ -93,7 +78,7 @@ export default function LinkCard({
                   onClick={(e) => {
                     e.preventDefault();
                     navigator.clipboard
-                      .writeText(link.url)
+                      .writeText(theLink.url)
                       .then(() => {
                         setIsCopied(true);
                         setTimeout(() => {
@@ -118,6 +103,10 @@ export default function LinkCard({
             )}
           </div>
         </a>
+        <LinkCardTags
+          tags={link.tags}
+          onClickManage={() => setIsAddingTags(true)}
+        />
         {isDeleting && (
           <>
             <div className="absolute left-0 top-0 w-full h-full bg-red-7 bg-opacity-90">
@@ -135,7 +124,7 @@ export default function LinkCard({
                   <button
                     className="btn  btn-error  btn-block  btn-xs"
                     onClick={() => {
-                      deleteLink(link.url);
+                      deleteLink(theLink.url);
                     }}
                   >
                     Delete
@@ -147,11 +136,12 @@ export default function LinkCard({
         )}
         {isAddingTags && (
           <LinkCardTagSelector
+            onUpdate={refreshCard}
             onClose={() => {
               setIsAddingTags(false);
             }}
-            savedTagIds={link.tagIDs}
-            url={link.url}
+            savedTagIds={theLink.tagIDs}
+            url={theLink.url}
           />
         )}
       </div>
