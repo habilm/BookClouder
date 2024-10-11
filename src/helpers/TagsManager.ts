@@ -18,6 +18,9 @@ chrome.storage.onChanged.addListener((changes) => {
     });
   }
 });
+type GetAllOptions = {
+  sort?: boolean;
+};
 
 export default class TagsManager {
   storageKey: string = "tags";
@@ -28,9 +31,23 @@ export default class TagsManager {
     return tag || false;
   }
 
-  async getAll(): Promise<TypeTag[] | []> {
+  async getAll(options: GetAllOptions = {}): Promise<TypeTag[] | []> {
     const storage = await chrome.storage.local.get(this.storageKey);
     if (!storage[this.storageKey]) return [];
+
+    if (options.sort) {
+      storage[this.storageKey] = storage[this.storageKey].sort(
+        (a: TypeTag, b: TypeTag) => {
+          if (a.name > b.name) {
+            return 1;
+          }
+          if (a.name < b.name) {
+            return -1;
+          }
+          return 0;
+        }
+      );
+    }
 
     return storage[this.storageKey] as TypeTag[];
   }

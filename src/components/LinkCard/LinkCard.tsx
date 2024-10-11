@@ -34,7 +34,6 @@ export default function LinkCard({
       setTheLink(updatedLink);
     }
   }
-  console.log("Updated link");
 
   return (
     <>
@@ -44,7 +43,7 @@ export default function LinkCard({
         }`}
       >
         <a href={theLink.url} target="_blank" className="" rel="noreferrer">
-          <div className="w-full flex">
+          <div className="w-full flex min-h-[70px]">
             <div className="w-10">
               <img
                 src={theLink.icon}

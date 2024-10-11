@@ -1,6 +1,7 @@
 import React from "react";
-import Tag from "../Tag";
+
 import { TypeTag } from "../../helpers/TagsManager";
+import SimpleTag from "../SimpleTag";
 
 interface Props {
   tags: TypeTag[];
@@ -14,11 +15,7 @@ function LinkCardTags({ tags }: Props) {
           tags?.map(
             (tag) =>
               tag?.id && (
-                <Tag
-                  key={tag.id}
-                  tag={tag}
-                  className={"cursor-pointer justify-center "}
-                />
+                <SimpleTag key={tag.id} text={tag.name} color={tag.color} />
               )
           )}
       </div>

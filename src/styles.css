@@ -36,4 +36,11 @@
     padding-inline-start: 3px;
     @apply inline-flex h-full pe-1 !border-l !border-solid !border-white border-opacity-30 hover:bg-red-400  items-center;
   }
+  .simple-tag {
+    @apply relative !ps-3 uppercase;
+  }
+  .simple-tag::after {
+    content: "";
+    @apply block absolute rounded-full bg-white w-1 h-1 top-1/2 left-1 !-translate-y-1/2;
+  }
 }

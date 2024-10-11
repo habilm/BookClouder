@@ -24,8 +24,8 @@ function LinkCardTagSelector({
 
   useEffect(() => {
     (async () => {
-      const allTags = await tags.getAll();
-
+      const allTags = await tags.getAll({ sort: true });
+      allTags.sort();
       setAvailableTags(allTags);
 
       onUpdate();
@@ -52,7 +52,8 @@ function LinkCardTagSelector({
   }
 
   (async () => {
-    const allTags = await tags.getAll();
+    const allTags = await tags.getAll({ sort: true });
+
     setAvailableTags(allTags);
   })();
   return (
@@ -71,9 +72,7 @@ function LinkCardTagSelector({
             />
           ))
         ) : (
-          <h4 className="text-center">
-            Click tags from right side to this link
-          </h4>
+          <h4 className="text-center">Please add tags</h4>
         )}
       </div>
       <XCircle
