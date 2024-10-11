@@ -1,11 +1,18 @@
 import { PlusCircle } from "lucide-react";
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, {
+  ChangeEvent,
+  KeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import TagsManager, { TypeTag } from "../helpers/TagsManager";
 import Tags from "./Tags";
 
 function TagsModal() {
   const [inputText, setInputText] = useState("");
   const [tags, setTags] = useState<TypeTag[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function onInput(event: ChangeEvent<HTMLInputElement>) {
     setInputText(event.target.value);
@@ -19,7 +26,7 @@ function TagsModal() {
     } catch (err) {
       console.log("Error saving tag:", err);
     }
-
+    inputRef.current?.focus();
     setInputText("");
   }
   useEffect(() => {
@@ -40,14 +47,22 @@ function TagsModal() {
     await getTags();
   }
 
+  function onkeydown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      addTag(inputText);
+    }
+  }
+
   return (
     <div>
       <div className="flex gap-2 mb-4">
         <input
           className="input-rounded input input-sm"
           onChange={onInput}
+          onKeyDown={onkeydown}
           value={inputText}
           placeholder="Enter new tag name"
+          ref={inputRef}
         />
         <button
           className="btn btn-outline-secondary !rounded-full flex gap-2 btn-sm"

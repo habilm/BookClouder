@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import LinksManger, { Link } from "../../helpers/LinksManager";
-import { Copy, CopyCheck, Trash2 } from "lucide-react";
+import { Copy, CopyCheck, Tags, Trash2 } from "lucide-react";
 import LinkCardTagSelector from "./LinkCardTagSelector";
 
 import LinkCardTags from "./LinkCardTags";
@@ -99,14 +99,19 @@ export default function LinkCard({
                     <Copy className="text-blue-600  action-icons" size={16} />
                   )}
                 </div>
+                <div
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsAddingTags(true);
+                  }}
+                >
+                  <Tags className="text-blue-600  action-icons" size={16} />
+                </div>
               </div>
             )}
           </div>
         </a>
-        <LinkCardTags
-          tags={link.tags}
-          onClickManage={() => setIsAddingTags(true)}
-        />
+        <LinkCardTags tags={link.tags} />
         {isDeleting && (
           <>
             <div className="absolute left-0 top-0 w-full h-full bg-red-7 bg-opacity-90">

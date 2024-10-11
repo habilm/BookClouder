@@ -1,18 +1,12 @@
-import { Tags } from "lucide-react";
-import React, { MouseEvent } from "react";
+import React from "react";
 import Tag from "../Tag";
 import { TypeTag } from "../../helpers/TagsManager";
 
 interface Props {
   tags: TypeTag[];
-  onClickManage: () => void;
 }
 
-function LinkCardTags({ tags, onClickManage }: Props) {
-  function onClickManageBtn(e: MouseEvent) {
-    e.preventDefault();
-    onClickManage();
-  }
+function LinkCardTags({ tags }: Props) {
   return (
     <div>
       <div className="pt-2 flex flex-wrap gap-1">
@@ -27,12 +21,6 @@ function LinkCardTags({ tags, onClickManage }: Props) {
                 />
               )
           )}
-        <button
-          className="tag text-white bg-primary"
-          onClick={onClickManageBtn}
-        >
-          Manage Tags <Tags size={14} />
-        </button>
       </div>
     </div>
   );
