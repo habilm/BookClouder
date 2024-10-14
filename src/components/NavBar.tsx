@@ -1,10 +1,10 @@
 import { PlusCircleIcon, Tags, UserCircleIcon } from "lucide-react";
 import React, { useContext } from "react";
-import { ModalOpen } from "../helpers/ContextApi";
+import { ContextData } from "../helpers/ContextApi";
 import TagsModal from "./TagsModal";
 
 function NavBar() {
-  const modalContext = useContext(ModalOpen);
+  const modalContext = useContext(ContextData);
   function tagModalOpen() {
     modalContext?.setIsModalOpen(<TagsModal />);
     modalContext?.setModalTitle("Mange Your tags");

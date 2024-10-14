@@ -2,17 +2,20 @@ import { PlusCircle } from "lucide-react";
 import React, {
   ChangeEvent,
   KeyboardEvent,
+  useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
 import TagsManager, { TypeTag } from "../helpers/TagsManager";
 import Tags from "./Tags";
+import { ContextData } from "../helpers/ContextApi";
 
 function TagsModal() {
   const [inputText, setInputText] = useState("");
   const [tags, setTags] = useState<TypeTag[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const contextNotify = useContext(ContextData);
 
   function onInput(event: ChangeEvent<HTMLInputElement>) {
     setInputText(event.target.value);
@@ -23,7 +26,13 @@ function TagsModal() {
       await tagManager.save({
         name: tag,
       });
-    } catch (err) {
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        contextNotify.setNotification({
+          type: "error",
+          message: err.toString(),
+        });
+      }
       console.log("Error saving tag:", err);
     }
     inputRef.current?.focus();

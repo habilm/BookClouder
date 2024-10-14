@@ -1,8 +1,8 @@
 import React, { useContext, useEffect } from "react";
-import { ModalOpen } from "../helpers/ContextApi";
+import { ContextData } from "../helpers/ContextApi";
 
 function Modal() {
-  const modalContext = useContext(ModalOpen);
+  const modalContext = useContext(ContextData);
 
   useEffect(() => {}, []);
   return (

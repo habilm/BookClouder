@@ -2,6 +2,9 @@ import { getRandomColor, getRandomString } from "./utitlity";
 
 export type TypeTag = {
   id: string;
+  /**
+   * Tag name. should be unique.
+   */
   name: string;
   color?: string;
   time?: Date;
@@ -28,6 +31,12 @@ export default class TagsManager {
   async getByID(id: string): Promise<TypeTag | false> {
     const tags = await this.getAll();
     const tag = tags.find((tag) => tag.id === id);
+    return tag || false;
+  }
+
+  async getByName(name: string): Promise<TypeTag | false> {
+    const tags = await this.getAll();
+    const tag = tags.find((tag) => tag.name === name);
     return tag || false;
   }
 
@@ -72,6 +81,10 @@ export default class TagsManager {
 
     if (tag.name.trim() === "") {
       throw new Error("Tag name can't be empty " + tag.id);
+    }
+
+    if (!tag.id && (await this.getByName(tag.name)) !== false) {
+      throw new Error("Tag name already exists " + tag.id);
     }
 
     if (tag.id) {
