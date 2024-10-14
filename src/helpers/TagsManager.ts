@@ -84,7 +84,7 @@ export default class TagsManager {
     }
 
     if (!tag.id && (await this.getByName(tag.name)) !== false) {
-      throw new Error("Tag name already exists " + tag.id);
+      throw new Error(`Tag name '${tag.name}' is already exists`);
     }
 
     if (tag.id) {

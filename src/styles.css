@@ -43,4 +43,22 @@
     content: "";
     @apply block absolute rounded-full bg-white w-1 h-1 top-1/2 left-1 !-translate-y-1/2;
   }
+  .notification-toast {
+    animation: toast 5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+}
+
+@keyframes toast {
+  0% {
+    top: -100px;
+  }
+  10% {
+    top: 40px;
+  }
+  90% {
+    top: 40px;
+  }
+  100% {
+    top: -100px;
+  }
 }
