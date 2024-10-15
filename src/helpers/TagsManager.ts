@@ -73,18 +73,28 @@ export default class TagsManager {
     return idIndexedTags;
   }
 
-  // Save or Update if pass the ID
+  /**
+   *
+   * @param tag TypeTag - The tag object to save
+   * @param errorIfExist Boolean - if it true then function will throw error: default is true
+   * @returns The tag object
+   */
   async save(
-    tag: Omit<TypeTag, "id"> & Partial<Pick<TypeTag, "id">>
-  ): Promise<false | TypeTag | string> {
+    tag: Omit<TypeTag, "id"> & Partial<Pick<TypeTag, "id">>,
+    errorIfExist: boolean = true
+  ): Promise<false | TypeTag> {
     let allTags = await this.getAll();
 
     if (tag.name.trim() === "") {
       throw new Error("Tag name can't be empty " + tag.id);
     }
 
-    if (!tag.id && (await this.getByName(tag.name)) !== false) {
-      throw new Error(`Tag name '${tag.name}' is already exists`);
+    const exists = await this.getByName(tag.name);
+    if (!tag.id && exists !== false) {
+      if (errorIfExist) {
+        throw new Error(`Tag name '${tag.name}' is already exists`);
+      }
+      return exists;
     }
 
     if (tag.id) {

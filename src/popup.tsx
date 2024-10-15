@@ -3,12 +3,17 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 import LinksManger, { Link } from "./helpers/LinksManager";
 import LinkCard from "./components/LinkCard/LinkCard";
+import LinkCardTags from "./components/LinkCard/LinkCardTags";
+import { TypeTag } from "./helpers/TagsManager";
+import { Save, Tags } from "lucide-react";
+import { getMetaKeywords } from "./helpers/ChromFunctions";
 
 const Popup = () => {
   const [link, setLink] = useState<Link | false>(false);
   const [linkAdded, setLinkAdded] = useState<boolean>(false);
   const [addedMessage, setAddedMessage] = useState("");
   const [linkExists, SetLinkExists] = useState(false);
+  const [suggestedTags, setSuggestedTags] = useState<TypeTag[]>([]);
 
   useEffect(() => {}, [linkAdded]);
 
@@ -31,6 +36,16 @@ const Popup = () => {
           tags: savedLink !== false ? savedLink.tags : [],
         };
 
+        if (savedLink === false) {
+          getMetaKeywords(tab[0].id || -1, (keywords) => {
+            if (keywords.length) {
+              setSuggestedTags(keywords);
+            } else {
+              // TODO:
+            }
+          });
+        }
+
         setLink(toSave);
       } else {
         // Need to add error handler
@@ -48,6 +63,26 @@ const Popup = () => {
       if (typeof saved === "string") {
         setAddedMessage(saved);
       } else {
+        setAddedMessage("Link Saved with Tags Successfully 🎉");
+        setLink(saved);
+        setLinkAdded(true);
+        SetLinkExists(true);
+      }
+    }
+  };
+
+  const saveLinkWithTags = async () => {
+    const tab = await chrome.tabs.query({ active: true });
+    if (tab.length && link) {
+      const linkManager = new LinksManger();
+
+      const tags = suggestedTags.map((st) => st.name);
+
+      const saved = await linkManager.save(link, tags);
+
+      if (typeof saved === "string") {
+        setAddedMessage(saved);
+      } else {
         setAddedMessage("Link Saved Successfully 🎉");
         setLink(saved);
         setLinkAdded(true);
@@ -57,7 +92,7 @@ const Popup = () => {
   };
   async function openSideBar() {
     const thisWindow = await chrome.windows.getCurrent({ populate: true });
-    // const thisWindow = chrome.
+
     chrome.sidePanel.open({
       windowId: thisWindow.id || 0,
     });
@@ -77,19 +112,40 @@ const Popup = () => {
           <>
             <div className="m-4">
               <LinkCard link={link} showActions={linkExists} />
+              {suggestedTags.length ? (
+                <div className="suggested-tags">
+                  <h4>Suggested Tags:</h4>
+                  <LinkCardTags tags={suggestedTags} />
+                </div>
+              ) : null}
             </div>
           </>
         ) : null}
 
         <div className="mt-3 text-center flex flex-col justify-center items-center gap-5">
           {!linkExists && (
-            <button
-              type="button"
-              className="btn btn-success "
-              onClick={saveLink}
+            <div
+              className={
+                suggestedTags.length ? "btn-group btn-group-rounded " : ""
+              }
             >
-              Save
-            </button>
+              {suggestedTags.length ? (
+                <button
+                  type="button"
+                  className="btn btn-success  gap-1"
+                  onClick={saveLinkWithTags}
+                >
+                  <Tags size={16} /> Save With Tags
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className="btn btn-success gap-1"
+                onClick={saveLink}
+              >
+                <Save size={16} /> Save
+              </button>
+            </div>
           )}
           <button
             type="button"

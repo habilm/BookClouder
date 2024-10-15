@@ -52,12 +52,26 @@ export default class LinksManger {
     return storage[this.storageKey];
   }
 
-  async save(Link: Link): Promise<false | Link | string> {
+  async save(
+    Link: Link,
+    tagsNames: string[] = []
+  ): Promise<false | Link | string> {
     let allLinks = await this.getAll();
     allLinks = Array.isArray(allLinks) ? allLinks : [];
 
     if ((await this.getByURL(Link.url)) !== false) {
       return "Link already exists";
+    }
+
+    if ((await Array.isArray(tagsNames)) && tagsNames.length) {
+      Link.tagIDs = [];
+
+      for (let i = 0; i < tagsNames.length; i++) {
+        const tag = await this.tagsManger.save({ name: tagsNames[i] }, false);
+        if (tag !== false) {
+          Link.tagIDs.push(tag.id);
+        }
+      }
     }
 
     Link.time = new Date();

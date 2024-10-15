@@ -32,7 +32,8 @@
     "tabs",
     "activeTab",
     "storage",
-    "clipboardWrite"
+    "clipboardWrite",
+    "scripting"
   ],
   "host_permissions": ["<all_urls>"],
   "commands": {
