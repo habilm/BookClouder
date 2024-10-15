@@ -18,12 +18,7 @@ const Popup = () => {
   const [linkExists, SetLinkExists] = useState(false);
   const [suggestedTags, setSuggestedTags] = useState<TypeTag[]>([]);
 
-  // async function onLinkChange() {
-  //   const linkManager = new LinksManger();
-  //   await linkManager.getByURL();
-  // }
   useEffect(() => {
-    console.log("rendered link");
     (async () => {
       const linkManager = new LinksManger();
 
