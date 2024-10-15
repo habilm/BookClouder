@@ -6,7 +6,10 @@ import LinkCard from "./components/LinkCard/LinkCard";
 import LinkCardTags from "./components/LinkCard/LinkCardTags";
 import { TypeTag } from "./helpers/TagsManager";
 import { Save, Tags } from "lucide-react";
-import { getMetaKeywords } from "./helpers/ChromFunctions";
+import {
+  getMetaKeywords,
+  getTagsMentionedOnPageContent,
+} from "./helpers/ChromFunctions";
 
 const Popup = () => {
   const [link, setLink] = useState<Link | false>(false);
@@ -41,7 +44,12 @@ const Popup = () => {
             if (keywords.length) {
               setSuggestedTags(keywords);
             } else {
-              // TODO:
+              getTagsMentionedOnPageContent(
+                tab[0].id || -1,
+                (matchedTags: TypeTag[]) => {
+                  setSuggestedTags(matchedTags);
+                }
+              );
             }
           });
         }
