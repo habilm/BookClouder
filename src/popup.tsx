@@ -18,11 +18,15 @@ const Popup = () => {
   const [linkExists, SetLinkExists] = useState(false);
   const [suggestedTags, setSuggestedTags] = useState<TypeTag[]>([]);
 
-  useEffect(() => {}, [linkAdded]);
-
+  // async function onLinkChange() {
+  //   const linkManager = new LinksManger();
+  //   await linkManager.getByURL();
+  // }
   useEffect(() => {
+    console.log("rendered link");
     (async () => {
       const linkManager = new LinksManger();
+
       const thisWindow = await chrome.windows.getCurrent();
       const tab = await chrome.tabs.query({
         active: true,
@@ -30,6 +34,12 @@ const Popup = () => {
       });
       if (tab.length) {
         const savedLink = await linkManager.getByURL(tab[0].url || "");
+
+        await linkManager.onChange(async function () {
+          const theLink = await linkManager.getByURL(tab[0].url || "");
+          setLink(theLink);
+        });
+
         SetLinkExists(savedLink !== false);
         const toSave = {
           title: tab[0].title || "unknown",
@@ -109,26 +119,8 @@ const Popup = () => {
   return (
     <>
       <div className="min-w-96 pb-4">
-        {linkAdded && (
-          <div className="text-center">
-            <h1 className="bg-green-600 text-white text-xl py-2">
-              {addedMessage}
-            </h1>
-          </div>
-        )}
-        {link ? (
-          <>
-            <div className="m-4">
-              <LinkCard link={link} showActions={linkExists} />
-              {suggestedTags.length ? (
-                <div className="suggested-tags">
-                  <h4>Suggested Tags:</h4>
-                  <LinkCardTags tags={suggestedTags} />
-                </div>
-              ) : null}
-            </div>
-          </>
-        ) : null}
+        {linkAdded && SuccessMessage(addedMessage)}
+        {link ? LinkBody(link, linkExists, suggestedTags) : null}
 
         <div className="mt-3 text-center flex flex-col justify-center items-center gap-5">
           {!linkExists && (
@@ -166,6 +158,34 @@ const Popup = () => {
       </div>
     </>
   );
+
+  function LinkBody(
+    link: Link,
+    linkExists: boolean,
+    suggestedTags: TypeTag[]
+  ): React.ReactNode {
+    return (
+      <>
+        <div className="m-4">
+          <LinkCard link={link} showActions={linkExists} />
+          {suggestedTags.length ? (
+            <div className="suggested-tags">
+              <h4>Suggested Tags:</h4>
+              <LinkCardTags tags={suggestedTags} />
+            </div>
+          ) : null}
+        </div>
+      </>
+    );
+  }
+
+  function SuccessMessage(addedMessage: string): React.ReactNode {
+    return (
+      <div className="text-center">
+        <h1 className="bg-green-600 text-white text-xl py-2">{addedMessage}</h1>
+      </div>
+    );
+  }
 };
 
 const root = createRoot(document.getElementById("root")!);

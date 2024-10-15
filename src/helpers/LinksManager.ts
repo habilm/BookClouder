@@ -13,7 +13,6 @@ const eventListeners: (() => void)[] = [];
 
 chrome.storage.onChanged.addListener((changes) => {
   if (changes["links"]) {
-    console.log(eventListeners, "events Links");
     eventListeners.forEach((event) => {
       event();
     });
