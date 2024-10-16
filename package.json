@@ -1,7 +1,7 @@
 {
-  "name": "chrome-extension-typescript-starter",
+  "name": "bookclouder",
   "version": "1.0.0",
-  "description": "chrome-extension-typescript-starter",
+  "description": "En extension to save your bookmarks in cloud and sync with browsers.",
   "main": "index.js",
   "scripts": {
     "dev": "webpack --config webpack/webpack.dev.js --watch",
@@ -10,11 +10,11 @@
     "test": "npx jest",
     "style": "prettier --write \"src/**/*.{ts,tsx}\""
   },
-  "author": "",
+  "author": "Habil M",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chibat/chrome-extension-typescript-starter.git"
+    "url": "https://github.com/habilm/BookClouder.git"
   },
   "dependencies": {
     "lucide-react": "^0.445.0",

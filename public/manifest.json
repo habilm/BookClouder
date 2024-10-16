@@ -33,7 +33,8 @@
     "activeTab",
     "storage",
     "clipboardWrite",
-    "scripting"
+    "scripting",
+    "unlimitedStorage"
   ],
   "host_permissions": ["<all_urls>"],
   "commands": {

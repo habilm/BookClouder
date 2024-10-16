@@ -112,31 +112,7 @@ export default function LinkCard({
         </a>
         <LinkCardTags tags={link.tags} />
         {isDeleting && (
-          <>
-            <div className="absolute left-0 top-0 w-full h-full bg-red-7 bg-opacity-90">
-              <div className="delete-box h-full text-center flex items-center justify-center flex-col gap-2 p-2">
-                <h3 className="font-bold text-sm text-white ">
-                  Are you sure you want to delete this link?
-                </h3>
-                <div className="delete-btns flex gap-4 ">
-                  <button
-                    className="btn btn-block btn-xs"
-                    onClick={() => setIsDeleting(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="btn  btn-error  btn-block  btn-xs"
-                    onClick={() => {
-                      deleteLink(theLink.url);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          </>
+          <CardDelete setIsDeleting={setIsDeleting} deleteLink={deleteLink} />
         )}
         {isAddingTags && (
           <LinkCardTagSelector
@@ -151,4 +127,40 @@ export default function LinkCard({
       </div>
     </>
   );
+
+  function CardDelete({
+    setIsDeleting,
+    deleteLink,
+  }: {
+    setIsDeleting: (action: boolean) => void;
+    deleteLink: (url: string) => void;
+  }): React.ReactNode {
+    return (
+      <>
+        <div className="absolute left-0 top-0 w-full h-full bg-red-7 bg-opacity-90">
+          <div className="delete-box h-full text-center flex items-center justify-center flex-col gap-2 p-2">
+            <h3 className="font-bold text-sm text-white ">
+              Are you sure you want to delete this link?
+            </h3>
+            <div className="delete-btns flex gap-4 ">
+              <button
+                className="btn btn-block btn-xs"
+                onClick={() => setIsDeleting(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn  btn-error  btn-block  btn-xs"
+                onClick={() => {
+                  deleteLink(theLink.url);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 }
