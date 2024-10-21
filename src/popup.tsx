@@ -115,7 +115,9 @@ const Popup = () => {
     <>
       <div className="min-w-96 pb-4">
         {linkAdded && SuccessMessage(addedMessage)}
-        {link ? LinkBody(link, linkExists, suggestedTags) : null}
+        {link
+          ? LinkBody(link, linkExists, suggestedTags, setSuggestedTags)
+          : null}
 
         <div className="mt-3 text-center flex flex-col justify-center items-center gap-5">
           {!linkExists && (
@@ -157,16 +159,20 @@ const Popup = () => {
   function LinkBody(
     link: Link,
     linkExists: boolean,
-    suggestedTags: TypeTag[]
+    suggestedTags: TypeTag[],
+    setSuggestedTags: (v: TypeTag[]) => void
   ): React.ReactNode {
+    function onCreateTag(tag: string) {
+      setSuggestedTags([...suggestedTags, { name: tag, id: tag }]);
+    }
     return (
       <>
         <div className="m-4">
           <LinkCard link={link} showActions={linkExists} />
-          {suggestedTags.length ? (
+          {!linkExists ? (
             <div className="suggested-tags">
               <h4>Suggested Tags:</h4>
-              <LinkCardTags tags={suggestedTags} />
+              <LinkCardTags tags={suggestedTags} onCreate={onCreateTag} />
             </div>
           ) : null}
         </div>

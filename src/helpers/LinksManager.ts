@@ -64,7 +64,7 @@ export default class LinksManger {
 
     if ((await Array.isArray(tagsNames)) && tagsNames.length) {
       Link.tagIDs = [];
-
+      tagsNames = [...new Set(tagsNames)];
       for (let i = 0; i < tagsNames.length; i++) {
         const tag = await this.tagsManger.save({ name: tagsNames[i] }, false);
         if (tag !== false) {
