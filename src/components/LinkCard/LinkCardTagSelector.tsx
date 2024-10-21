@@ -56,6 +56,15 @@ function LinkCardTagSelector({
 
     setAvailableTags(allTags);
   })();
+  availableTags.sort((a, b) => {
+    if (addedTagsIds.includes(a.id) && !addedTagsIds.includes(b.id)) {
+      return -1;
+    }
+    if (!addedTagsIds.includes(a.id) && addedTagsIds.includes(b.id)) {
+      return 1;
+    }
+    return 0;
+  });
   return (
     <div className="absolute top-0 left-0 bg-secondary bg-opacity-80 backdrop-blur-sm w-full h-full flex p-2">
       <div className="h-full w-full  overflow-y-scroll  flex gap-1 flex-wrap content-start p-1">
@@ -72,7 +81,7 @@ function LinkCardTagSelector({
             />
           ))
         ) : (
-          <h4 className="text-center">Please add tags</h4>
+          <h4 className="text-center">No Tags Found</h4>
         )}
       </div>
       <XCircle
