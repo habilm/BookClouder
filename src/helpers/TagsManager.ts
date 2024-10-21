@@ -47,10 +47,10 @@ export default class TagsManager {
     if (options.sort) {
       storage[this.storageKey] = storage[this.storageKey].sort(
         (a: TypeTag, b: TypeTag) => {
-          if (a.name > b.name) {
+          if (a.name.toLowerCase() > b.name.toLowerCase()) {
             return 1;
           }
-          if (a.name < b.name) {
+          if (a.name.toLowerCase() < b.name.toLowerCase()) {
             return -1;
           }
           return 0;
