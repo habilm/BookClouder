@@ -16,7 +16,7 @@ function Modal() {
       />
       <div className="modal w-screen">
         <label className="modal-overlay" htmlFor="modal-2"></label>
-        <div className="modal-content flex flex-col gap-5 max-w-3xl">
+        <div className="modal-content flex flex-col gap-5 max-w-3xl w-full">
           <button
             type="button"
             onClick={() => modalContext.setIsModalOpen(false)}

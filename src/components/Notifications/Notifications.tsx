@@ -22,9 +22,9 @@ function Notifications() {
       <div className="alert alert-error max-w-sm !w-[90%] !p-2  mx-auto">
         <CircleAlert />
         <div className="flex w-full justify-between">
-          <div className="flex gap-3">
+          <div className="flex gap-3 capitalize">
             <span>{notificationData.notification?.type}</span>
-            <span className="text-content2">
+            <span className="text-content2 ">
               {notificationData.notification?.message}
             </span>
           </div>

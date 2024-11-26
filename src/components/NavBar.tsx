@@ -2,6 +2,8 @@ import { PlusCircleIcon, Tags, UserCircleIcon } from "lucide-react";
 import React, { useContext } from "react";
 import { ContextData } from "../helpers/ContextApi";
 import TagsModal from "./TagsModal";
+import UserModal from "./Users/UserModal";
+import User from "./Users/Users";
 
 function NavBar() {
   const modalContext = useContext(ContextData);
@@ -9,11 +11,19 @@ function NavBar() {
     modalContext?.setIsModalOpen(<TagsModal />);
     modalContext?.setModalTitle("Mange Your tags");
   }
+  async function userModalOpen() {
+    const user = new User();
+    const loggedIn = await user.getCurrentUser();
+    modalContext?.setIsModalOpen(<UserModal />);
+    modalContext?.setModalTitle(loggedIn ? "Your Profile" : "Login");
+  }
 
   return (
     <div className="flex">
       <div className="w-1/5">
-        <UserCircleIcon />
+        <button className="btn btn-xs" onClick={userModalOpen}>
+          <UserCircleIcon />
+        </button>
       </div>
       <div className="w-3/5">
         <h1 className="text-center text-xl ">Your BookClouds</h1>
