@@ -1,4 +1,5 @@
 import TagsManager, { TypeTag } from "./TagsManager";
+import { sendToWorker } from "./WorkerCommunication";
 
 export interface Link {
   url: string;
@@ -7,6 +8,7 @@ export interface Link {
   tagIDs: string[];
   tags: TypeTag[] | [];
   time?: Date;
+  syncedWithCloud?: boolean;
 }
 
 const eventListeners: (() => void)[] = [];
@@ -25,6 +27,9 @@ export default class LinksManger {
   }
   tagsManger: TagsManager;
   storageKey: string = "links";
+  /**
+   * If those string are contain any URL we will not save and will not show the save option in PopupMenu
+   */
   blackListedStrings: string[] = ["extension://", "edge://"];
 
   async getByURL(url: string): Promise<Link | false> {
@@ -53,7 +58,8 @@ export default class LinksManger {
 
   async save(
     Link: Link,
-    tagsNames: string[] = []
+    tagsNames: string[] = [],
+    doSync: boolean = true
   ): Promise<false | Link | string> {
     let allLinks = await this.getAll();
     allLinks = Array.isArray(allLinks) ? allLinks : [];
@@ -80,6 +86,7 @@ export default class LinksManger {
     const newAllLinks = [Link, ...allLinks];
     try {
       await chrome.storage.local.set({ [this.storageKey]: newAllLinks });
+      if (doSync) sendToWorker("onLinkCreated", Link);
       return Link;
     } catch (e) {
       console.error("Error saving LINK", e);

@@ -9,6 +9,7 @@ import { Save, Tags } from "lucide-react";
 import {
   getMetaKeywords,
   getTagsMentionedOnPageContent,
+  updateIcon,
 } from "./helpers/ChromFunctions";
 
 const Popup = () => {
@@ -29,6 +30,17 @@ const Popup = () => {
       });
       if (tab.length) {
         const savedLink = await linkManager.getByURL(tab[0].url || "");
+
+        if (linkManager.blackListedStrings) {
+          for (const blacklistedString of linkManager.blackListedStrings) {
+            if (tab[0].url?.includes(blacklistedString)) {
+              setLinkAdded(true);
+              SetLinkExists(true);
+              setAddedMessage("");
+              return;
+            }
+          }
+        }
 
         await linkManager.onChange(async function () {
           const theLink = await linkManager.getByURL(tab[0].url || "");
@@ -97,6 +109,7 @@ const Popup = () => {
         setAddedMessage(saved);
       } else {
         setAddedMessage("Link Saved Successfully 🎉");
+        updateIcon(link.url, tab[0].id || 0);
         setLink(saved);
         setLinkAdded(true);
         SetLinkExists(true);
@@ -181,6 +194,7 @@ const Popup = () => {
   }
 
   function SuccessMessage(addedMessage: string): React.ReactNode {
+    if (!addedMessage) return null;
     return (
       <div className="text-center">
         <h1 className="bg-green-600 text-white text-xl py-2">{addedMessage}</h1>

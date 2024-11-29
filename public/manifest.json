@@ -10,9 +10,9 @@
     "default_popup": "popup.html",
     "default_title": "BookClouder - Where you bookmark your page links",
     "default_icon": {
-      "16": "assets/file-heart.png",
-      "48": "assets/file-heart.png",
-      "128": "assets/file-heart.png"
+      "16": "assets/icon-default-16.png",
+      "48": "assets/icon-default-48.png",
+      "128": "assets/icon-default-128.png"
     }
   },
   "side_panel": {
@@ -36,7 +36,7 @@
     "scripting",
     "unlimitedStorage"
   ],
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": ["https://bookclouder-api.finepher.com/*"],
   "commands": {
     "open-side-panel": {
       "suggested_key": {
@@ -47,8 +47,8 @@
     }
   },
   "icons": {
-    "16": "assets/file-heart.png",
-    "48": "assets/file-heart.png",
-    "128": "assets/file-heart.png"
+    "16": "assets/icon-default-16.png",
+    "48": "assets/icon-default-48.png",
+    "128": "assets/icon-default-128.png"
   }
 }

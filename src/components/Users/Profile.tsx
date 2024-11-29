@@ -1,9 +1,10 @@
 import React from "react";
-import User, { userType } from "./Users";
+
+import UserManager, { userType } from "../../helpers/UserManager";
 import Button from "../Button";
 
 export default function Profile({ currentUser }: { currentUser: userType }) {
-  const user = new User();
+  const user = new UserManager();
 
   return (
     <div>

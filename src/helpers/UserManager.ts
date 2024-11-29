@@ -1,57 +1,59 @@
-export type UserData = {
-    token: string;
-    userName: string;
-    avatarUrl: string;
-}
-export async function getCurrentUser():Promise<UserData|undefined>;
-export async function getCurrentUser(key: string):Promise<string|undefined>;
-export async function getCurrentUser( key?: string ):Promise<UserData|string|undefined>{
-    const user = await chrome.storage.local.get("currentUser") ;
+export type userType = {
+  fullName: string;
+  userName: string;
+  avatarUrl: string;
+};
 
-    if(!user.currentUser ) return undefined
-    if(key){
-        return user.currentUser[key as keyof UserData];
+export type UserDataType = {
+  token: string;
+};
+
+const eventListeners: (() => void)[] = [];
+
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes["currentUser"]) {
+    eventListeners.forEach((event) => {
+      event();
+    });
+  }
+});
+export default class UserManager {
+  async logout() {
+    await chrome.storage.local.remove("currentUser");
+    return true;
+  }
+  async getCurrentUser() {
+    const user = await chrome.storage.local.get("currentUser");
+    return user.currentUser;
+  }
+
+  async save(data: userType, token: string) {
+    await chrome.storage.local.set({ currentUser: data, token: token });
+    return true;
+  }
+  async onChange(callback: () => void) {
+    if (eventListeners.indexOf(callback) !== -1) return;
+    eventListeners.push(callback);
+  }
+  removeEvent(callback: () => void) {
+    const index = eventListeners.indexOf(callback);
+    if (index !== -1) {
+      eventListeners.splice(index, 1);
     }
-    return user.currentUser as UserData;
-}
-
-export async function saveCurrentUser(userData: UserData): Promise<boolean>{
-    try{
-        await chrome.storage.local.set({ currentUser: userData });
-        return true;
-    }catch(e){
-        console.error("Error saving current user", e);
-        return false;
-    }
-    
-}
-
-export default class UserManager{
-    storageKey = "currentUser"
-    async  get( key?: string ):Promise<UserData|string|undefined>{
-        const user = await chrome.storage.local.get(this.storageKey) ;
-    
-        if(!user[this.storageKey] ) return undefined
-        if(key){
-            return user[this.storageKey][key as keyof UserData];
-        }
-        return user[this.storageKey] as UserData;
-    }
-
-    async  save(userData: UserData): Promise<boolean>{
-        try{
-            await chrome.storage.local.set({ [this.storageKey]: userData });
-            return true;
-        }catch(e){
-            console.error("Error saving current user", e);
-            return false;
-        }
-        
-    }
-
-    async clear(){
-
-        await chrome.storage.local.remove(this.storageKey)
-    }
+  }
 }
 
+export async function getCurrentUser(): Promise<userType | false>;
+export async function getCurrentUser(key: string): Promise<string | false>;
+export async function getCurrentUser(
+  key?: string
+): Promise<userType | string | false> {
+  const userManager = new UserManager();
+  const user = await userManager.getCurrentUser();
+
+  if (!user.currentUser) return false;
+  if (key) {
+    return user.currentUser[key as keyof userType];
+  }
+  return user.currentUser as userType;
+}

@@ -1,9 +1,9 @@
 import { PlusCircleIcon, Tags, UserCircleIcon } from "lucide-react";
 import React, { useContext } from "react";
 import { ContextData } from "../helpers/ContextApi";
+import UserManager from "../helpers/UserManager";
 import TagsModal from "./TagsModal";
 import UserModal from "./Users/UserModal";
-import User from "./Users/Users";
 
 function NavBar() {
   const modalContext = useContext(ContextData);
@@ -12,7 +12,7 @@ function NavBar() {
     modalContext?.setModalTitle("Mange Your tags");
   }
   async function userModalOpen() {
-    const user = new User();
+    const user = new UserManager();
     const loggedIn = await user.getCurrentUser();
     modalContext?.setIsModalOpen(<UserModal />);
     modalContext?.setModalTitle(loggedIn ? "Your Profile" : "Login");

@@ -1,8 +1,9 @@
 import React, { FormEvent, useContext, useState } from "react";
 import { ContextData } from "../../helpers/ContextApi";
 import { fetchApi, ValidationError } from "../../helpers/fetch";
+import UserManager, { userType } from "../../helpers/UserManager";
 import Button from "../Button";
-import User, { userType } from "./Users";
+
 export default function Login() {
   const contextNotify = useContext(ContextData);
   const [buttonStates, setButtonStates] = useState({
@@ -24,8 +25,8 @@ export default function Login() {
         body: JSON.stringify(formObj),
       })) as { token: string; data: userType };
 
-      const user = new User();
-      user.saveUser(data.data, data.token);
+      const user = new UserManager();
+      user.save(data.data, data.token);
     } catch (err) {
       if (err instanceof ValidationError) {
         console.log(Object.values(err.errors)[0]);

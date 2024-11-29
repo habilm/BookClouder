@@ -1,3 +1,4 @@
+import LinksManger from "./LinksManager";
 import TagsManager, { TypeTag } from "./TagsManager";
 
 export function getMetaKeywords(
@@ -15,7 +16,7 @@ export function getMetaKeywords(
       },
     },
     (result) => {
-      if (result.length > 0) {
+      if (result && result.length > 0) {
         result.forEach((func) => {
           const sTagsString = func.result || "";
           if (!sTagsString) {
@@ -55,7 +56,7 @@ export function getTagsMentionedOnPageContent(
       },
     },
     (result) => {
-      if (result.length > 0) {
+      if (result && result.length > 0) {
         result.forEach(async (func) => {
           const bodyText = func.result || "";
 
@@ -85,4 +86,35 @@ export function getTagsMentionedOnPageContent(
       }
     }
   );
+}
+
+/**
+ * The function will update the icon for action bar of the browser.
+ * @param url
+ * @param tabId
+ */
+export async function updateIcon(url: string, tabId: number) {
+  // Example: Change the icon if the URL contains "example.com"
+  const linksManger = new LinksManger();
+  const links = await linksManger.getAll();
+  const allURLs = links.map((link) => link.url);
+  if (allURLs.includes(url)) {
+    chrome.action?.setIcon({
+      path: {
+        "16": "/assets/icon-green-16.png",
+        "48": "/assets/icon-green-48.png",
+        "128": "/assets/icon-green-128.png",
+      },
+      tabId: tabId,
+    });
+  } else {
+    chrome.action?.setIcon({
+      path: {
+        "16": "/assets/icon-default-16.png",
+        "48": "/assets/icon-default-48.png",
+        "128": "/assets/icon-default-128.png",
+      },
+      tabId: tabId,
+    });
+  }
 }

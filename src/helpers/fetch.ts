@@ -2,16 +2,16 @@ import getConfig from "./config";
 
 export type fetchOptionsType = {
   method?: "POST" | "GET" | "HEAD" | "OPTIONS" | "DELETE";
-  headers?: Headers;
+  headers?: Record<string, string> | Headers;
   body?: BodyInit | null;
+  baseUrl?: string;
 };
 
 export async function fetchApi(
   url: string,
   options?: fetchOptionsType
 ): Promise<object> {
-  const baseUrl = getConfig("API_URL");
-
+  const baseUrl = options?.baseUrl || getConfig("API_URL");
   const fetchOptions = options || {};
   fetchOptions.headers = new Headers(options?.headers);
   fetchOptions.headers.set("content-type", "application/json");
