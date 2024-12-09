@@ -48,12 +48,15 @@ const Popup = () => {
         });
 
         SetLinkExists(savedLink !== false);
+        const nowDate = new Date().toISOString();
         const toSave = {
           title: tab[0].title || "unknown",
           url: tab[0].url || "/#unknown",
           icon: tab[0].favIconUrl || "",
           tagIDs: savedLink !== false ? savedLink.tagIDs : [],
           tags: savedLink !== false ? savedLink.tags : [],
+          createdAt: nowDate,
+          updatedAt: nowDate,
         };
 
         if (savedLink === false) {

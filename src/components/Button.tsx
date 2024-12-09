@@ -7,20 +7,22 @@ type ButtonType = {
   className?: string;
   type: "button" | "submit" | "reset";
   disabled?: boolean;
-  loading?: boolean;
+  isLoading?: boolean;
 };
 
 function Button(prop: ButtonType) {
   return (
     <div>
       <button
-        {...prop}
+        disabled={prop.disabled}
+        type={prop.type}
+        onClick={prop.onClick}
         className={
           prop.className + " " + "flex gap-2 items-center justify-center"
         }
       >
         {prop.label}
-        {prop.loading && <LoaderCircle size={18} className=" animate-spin" />}
+        {prop.isLoading && <LoaderCircle size={18} className=" animate-spin" />}
       </button>
     </div>
   );

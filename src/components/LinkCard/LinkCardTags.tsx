@@ -17,7 +17,7 @@ function LinkCardTags({ tags, onCreate }: Props) {
   }
   function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     const element = event?.target as HTMLInputElement;
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && element.value) {
       if (onCreate) onCreate(element.value);
       setNewTag("");
     }

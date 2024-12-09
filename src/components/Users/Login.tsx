@@ -1,6 +1,7 @@
 import React, { FormEvent, useContext, useState } from "react";
 import { ContextData } from "../../helpers/ContextApi";
 import { fetchApi, ValidationError } from "../../helpers/fetch";
+import { sync } from "../../helpers/SyncManager";
 import UserManager, { userType } from "../../helpers/UserManager";
 import Button from "../Button";
 
@@ -8,12 +9,12 @@ export default function Login() {
   const contextNotify = useContext(ContextData);
   const [buttonStates, setButtonStates] = useState({
     disabled: false,
-    loading: false,
+    isLoading: false,
   });
   async function onLogin(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setButtonStates({
-      loading: true,
+      isLoading: true,
       disabled: true,
     });
     const formData = new FormData(e.target as HTMLFormElement);
@@ -26,13 +27,14 @@ export default function Login() {
       })) as { token: string; data: userType };
 
       const user = new UserManager();
-      user.save(data.data, data.token);
+      await user.save(data.data, data.token);
+
+      sync();
     } catch (err) {
       if (err instanceof ValidationError) {
         console.log(Object.values(err.errors)[0]);
-        const errorMessage = err.errors.errors
-          ? Object.values(err.errors.errors)[0]
-          : err.errors.error;
+        const errorMessage = err.errors.message;
+
         contextNotify.setNotification({
           type: "error",
           message: errorMessage || "Validation Error",
@@ -42,7 +44,7 @@ export default function Login() {
       return;
     } finally {
       setButtonStates({
-        loading: false,
+        isLoading: false,
         disabled: false,
       });
     }
@@ -57,6 +59,7 @@ export default function Login() {
             name="email"
             placeholder="Enter your email address"
             value={"habil2@yopmail.com"}
+            onChange={() => {}}
           />
         </div>
         <div className="mb-4">

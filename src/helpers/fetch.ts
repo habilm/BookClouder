@@ -1,7 +1,8 @@
 import getConfig from "./config";
+import UserManager from "./UserManager";
 
 export type fetchOptionsType = {
-  method?: "POST" | "GET" | "HEAD" | "OPTIONS" | "DELETE";
+  method?: "POST" | "GET" | "HEAD" | "OPTIONS" | "DELETE" | "PATCH";
   headers?: Record<string, string> | Headers;
   body?: BodyInit | null;
   baseUrl?: string;
@@ -10,10 +11,17 @@ export type fetchOptionsType = {
 export async function fetchApi(
   url: string,
   options?: fetchOptionsType
-): Promise<object> {
+): Promise<object[] | object> {
+  console.log(url);
   const baseUrl = options?.baseUrl || getConfig("API_URL");
   const fetchOptions = options || {};
-  fetchOptions.headers = new Headers(options?.headers);
+  const user = new UserManager();
+  const token: string = await user.getToken();
+  const authTokenHeader = {
+    Authorization: "Bearer " + token,
+    ...options?.headers,
+  };
+  fetchOptions.headers = new Headers(authTokenHeader);
   fetchOptions.headers.set("content-type", "application/json");
   fetchOptions.method = options?.method || "GET";
 

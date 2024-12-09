@@ -1,6 +1,6 @@
 import { updateIcon } from "./helpers/ChromFunctions";
-import { fetchApi } from "./helpers/fetch";
-import LinksManger, { Link } from "./helpers/LinksManager";
+import { Link } from "./helpers/LinksManager";
+import { sync } from "./helpers/SyncManager";
 import UserManager from "./helpers/UserManager";
 import { receiveFromWorker } from "./helpers/WorkerCommunication";
 
@@ -14,20 +14,12 @@ chrome.commands.onCommand.addListener(async (command) => {
   }
 });
 
-receiveFromWorker<Link>("onLinkCreated", function (data) {
+receiveFromWorker<Link>("onLinkCreated", async function () {
   // We won't immediately call to cloud to create. we will wait some time and call the create API. in order to avoid unnecessary API calls if user delete the link immediately.
   const users = new UserManager();
-  if (users)
+  if (await users.getCurrentUser())
     setTimeout(async function () {
-      const linksManger = new LinksManger();
-      const link = await linksManger.getByURL(data.url);
-      if (link !== false) {
-        const res = fetchApi("/links", {
-          method: "POST",
-          body: JSON.stringify(link),
-        });
-        // if(respose)
-      }
+      sync();
     }, 0);
 });
 receiveFromWorker("onLinkDeleted", function (message) {

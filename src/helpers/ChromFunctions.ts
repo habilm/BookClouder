@@ -101,18 +101,18 @@ export async function updateIcon(url: string, tabId: number) {
   if (allURLs.includes(url)) {
     chrome.action?.setIcon({
       path: {
-        "16": "/assets/icon-green-16.png",
-        "48": "/assets/icon-green-48.png",
-        "128": "/assets/icon-green-128.png",
+        "16": "/assets/icon-default-16.png",
+        "48": "/assets/icon-default-48.png",
+        "128": "/assets/icon-default-128.png",
       },
       tabId: tabId,
     });
   } else {
     chrome.action?.setIcon({
       path: {
-        "16": "/assets/icon-default-16.png",
-        "48": "/assets/icon-default-48.png",
-        "128": "/assets/icon-default-128.png",
+        "16": "/assets/icon-inactive-16.png",
+        "48": "/assets/icon-inactive-48.png",
+        "128": "/assets/icon-inactive-128.png",
       },
       tabId: tabId,
     });

@@ -31,6 +31,10 @@ export default class UserManager {
     await chrome.storage.local.set({ currentUser: data, token: token });
     return true;
   }
+  async getToken(): Promise<string> {
+    const token = await chrome.storage.local.get("token");
+    return token.token;
+  }
   async onChange(callback: () => void) {
     if (eventListeners.indexOf(callback) !== -1) return;
     eventListeners.push(callback);

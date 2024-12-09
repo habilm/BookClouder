@@ -7,8 +7,14 @@ export interface Link {
   icon?: string;
   tagIDs: string[];
   tags: TypeTag[] | [];
-  time?: Date;
-  syncedWithCloud?: boolean;
+  /**
+   * createdAt Date String ISO 8601
+   */
+  createdAt: string;
+  /**
+   * updatedAt Date String ISO 8601
+   */
+  updatedAt: string;
 }
 
 const eventListeners: (() => void)[] = [];
@@ -38,26 +44,48 @@ export default class LinksManger {
     return link || false;
   }
 
-  async getAll(): Promise<Link[] | []> {
+  async getAll(date?: Date | null | undefined): Promise<Link[] | []> {
     const storage = await chrome.storage.local.get(this.storageKey);
     if (!storage[this.storageKey]) return [];
 
     const allTags = await this.tagsManger.getAllIdIndexed();
 
-    storage[this.storageKey] = storage[this.storageKey].map((links: Link) => {
-      links.tags =
-        links.tagIDs &&
-        links.tagIDs.map((tagId) =>
-          typeof tagId == "string" ? allTags[tagId] : tagId
-        );
-      return links;
-    });
+    storage[this.storageKey] = storage[this.storageKey].map(
+      (link: Link & { _id?: string }) => {
+        link.tags =
+          link.tagIDs &&
+          link.tagIDs.map((tagId) =>
+            typeof tagId == "string" ? allTags[tagId] : tagId
+          );
 
+        delete link._id;
+
+        return link;
+      }
+    );
+
+    if (date) {
+      storage[this.storageKey] = storage[this.storageKey].filter(
+        (theLink: Link) => {
+          const linkDate = new Date(theLink.updatedAt);
+          console.log(
+            theLink.updatedAt,
+            linkDate.getTime(),
+            date.toISOString(),
+            date.getTime()
+          );
+          return linkDate.getTime() >= date.getTime();
+        }
+      );
+      return storage[this.storageKey];
+    }
+    console.log("2");
     return storage[this.storageKey];
   }
 
   async save(
-    Link: Link,
+    Link: Omit<Link, "createdAt" | "updatedAt"> &
+      Partial<Pick<Link, "createdAt" | "updatedAt">>,
     tagsNames: string[] = [],
     doSync: boolean = true
   ): Promise<false | Link | string> {
@@ -79,7 +107,12 @@ export default class LinksManger {
       }
     }
 
-    Link.time = new Date();
+    if (!Link.createdAt) {
+      Link.createdAt = new Date().toISOString();
+    }
+    if (!Link.updatedAt) {
+      Link.updatedAt = new Date().toISOString();
+    }
     Link.icon =
       Link.icon?.trim() == "" ? "/assets/fav-placeholder.jpg" : Link.icon;
 
@@ -87,7 +120,7 @@ export default class LinksManger {
     try {
       await chrome.storage.local.set({ [this.storageKey]: newAllLinks });
       if (doSync) sendToWorker("onLinkCreated", Link);
-      return Link;
+      return Link as Link;
     } catch (e) {
       console.error("Error saving LINK", e);
       return false;
@@ -98,8 +131,21 @@ export default class LinksManger {
     const allLinks = await this.getAll();
     const linkIndex = allLinks.findIndex((link) => link.url === url);
     if (linkIndex === -1) return false;
+
+    allLinks[linkIndex].updatedAt = new Date().toISOString();
     allLinks[linkIndex].tagIDs = tags;
 
+    await chrome.storage.local.set({ [this.storageKey]: allLinks });
+    return true;
+  }
+  async updateDate() {
+    let allLinks = await this.getAll();
+    allLinks = allLinks.map((link) => {
+      link.updatedAt = new Date().toISOString();
+      link.createdAt = new Date().toISOString();
+      return link;
+    });
+    console.log({ allLinks });
     await chrome.storage.local.set({ [this.storageKey]: allLinks });
     return true;
   }

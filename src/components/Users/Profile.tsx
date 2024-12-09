@@ -2,6 +2,7 @@ import React from "react";
 
 import UserManager, { userType } from "../../helpers/UserManager";
 import Button from "../Button";
+import { sync } from "../../helpers/SyncManager";
 
 export default function Profile({ currentUser }: { currentUser: userType }) {
   const user = new UserManager();
@@ -22,6 +23,12 @@ export default function Profile({ currentUser }: { currentUser: userType }) {
             type="button"
             className="btn btn-error mb-2"
             onClick={async () => await user.logout()}
+          />
+          <Button
+            label="Sync"
+            type="button"
+            className="btn btn-error mb-2"
+            onClick={() => sync()}
           />
           <p>
             Your cloud sync will pause when you log out. Any links you&apos;ve
