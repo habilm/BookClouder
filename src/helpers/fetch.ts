@@ -8,10 +8,10 @@ export type fetchOptionsType = {
   baseUrl?: string;
 };
 
-export async function fetchApi(
+export async function fetchApi<T>(
   url: string,
   options?: fetchOptionsType
-): Promise<object[] | object> {
+): Promise<T> {
   console.log(url);
   const baseUrl = options?.baseUrl || getConfig("API_URL");
   const fetchOptions = options || {};

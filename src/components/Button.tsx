@@ -1,13 +1,14 @@
 import { LoaderCircle } from "lucide-react";
-import React from "react";
+import React, { MouseEventHandler } from "react";
 
 type ButtonType = {
   label: string;
-  onClick?: () => void;
+  onClick?: MouseEventHandler<HTMLButtonElement> | undefined;
   className?: string;
   type: "button" | "submit" | "reset";
   disabled?: boolean;
   isLoading?: boolean;
+  icon?: React.ReactNode;
 };
 
 function Button(prop: ButtonType) {
@@ -21,6 +22,7 @@ function Button(prop: ButtonType) {
           prop.className + " " + "flex gap-2 items-center justify-center"
         }
       >
+        {prop.icon}
         {prop.label}
         {prop.isLoading && <LoaderCircle size={18} className=" animate-spin" />}
       </button>

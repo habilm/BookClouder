@@ -15,6 +15,7 @@ export interface Link {
    * updatedAt Date String ISO 8601
    */
   updatedAt: string;
+  isDeleted?: boolean;
 }
 
 const eventListeners: (() => void)[] = [];
@@ -44,7 +45,10 @@ export default class LinksManger {
     return link || false;
   }
 
-  async getAll(date?: Date | null | undefined): Promise<Link[] | []> {
+  async getAll(
+    date?: Date | null | undefined,
+    includeSoftDeleted: boolean = false
+  ): Promise<Link[] | []> {
     const storage = await chrome.storage.local.get(this.storageKey);
     if (!storage[this.storageKey]) return [];
 
@@ -64,22 +68,27 @@ export default class LinksManger {
       }
     );
 
-    if (date) {
-      storage[this.storageKey] = storage[this.storageKey].filter(
-        (theLink: Link) => {
+    storage[this.storageKey] = storage[this.storageKey].filter(
+      (theLink: Link) => {
+        // deleted will be ignored
+        if (theLink.isDeleted === true && !includeSoftDeleted) return false;
+
+        // only take after the given date
+        if (date) {
           const linkDate = new Date(theLink.updatedAt);
-          console.log(
-            theLink.updatedAt,
-            linkDate.getTime(),
-            date.toISOString(),
-            date.getTime()
-          );
+          // console.log(
+          //   theLink.updatedAt,
+          //   linkDate.getTime(),
+          //   date.toISOString(),
+          //   date.getTime(),
+          //   linkDate.getTime() >= date.getTime()
+          // );
           return linkDate.getTime() >= date.getTime();
         }
-      );
-      return storage[this.storageKey];
-    }
-    console.log("2");
+        return true;
+      }
+    );
+
     return storage[this.storageKey];
   }
 
@@ -115,7 +124,7 @@ export default class LinksManger {
     }
     Link.icon =
       Link.icon?.trim() == "" ? "/assets/fav-placeholder.jpg" : Link.icon;
-
+    Link.isDeleted = false;
     const newAllLinks = [Link, ...allLinks];
     try {
       await chrome.storage.local.set({ [this.storageKey]: newAllLinks });
@@ -138,23 +147,38 @@ export default class LinksManger {
     await chrome.storage.local.set({ [this.storageKey]: allLinks });
     return true;
   }
-  async updateDate() {
-    let allLinks = await this.getAll();
-    allLinks = allLinks.map((link) => {
-      link.updatedAt = new Date().toISOString();
-      link.createdAt = new Date().toISOString();
-      return link;
-    });
-    console.log({ allLinks });
+  async update(url: string, data: Partial<Link>, doSync: boolean = true) {
+    const allLinks = await this.getAll();
+    const linkIndex = allLinks.findIndex((link) => link.url === url);
+    if (linkIndex === -1) return false;
+
+    allLinks[linkIndex] = { ...allLinks[linkIndex], ...data };
+    allLinks[linkIndex].updatedAt = new Date().toISOString();
+
+    if (doSync) sendToWorker("onLinkUpdated", allLinks[linkIndex]);
+
     await chrome.storage.local.set({ [this.storageKey]: allLinks });
     return true;
   }
 
-  async delete(url: string) {
-    const allLinks = await this.getAll();
+  async delete(
+    url: string,
+    softDelete: boolean = true,
+    doSync: boolean = true
+  ) {
+    if (softDelete === true) {
+      console.log("doing soft delete");
+      const deleted = await this.update(url, { isDeleted: true });
+      return deleted;
+    }
+
+    const allLinks = await this.getAll(null, true);
     const index = allLinks.findIndex((link) => link.url === url);
     if (index === -1) return false;
     allLinks.splice(index, 1);
+
+    if (doSync) sendToWorker("onLinkDeleted", {});
+    console.log("doing hard delete");
     await chrome.storage.local.set({ [this.storageKey]: allLinks });
   }
 

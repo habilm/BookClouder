@@ -1,3 +1,5 @@
+import { setLastSynced } from "./SyncManager";
+
 export type userType = {
   fullName: string;
   userName: string;
@@ -20,6 +22,7 @@ chrome.storage.onChanged.addListener((changes) => {
 export default class UserManager {
   async logout() {
     await chrome.storage.local.remove("currentUser");
+    await setLastSynced(new Date(1));
     return true;
   }
   async getCurrentUser() {

@@ -4,18 +4,16 @@ import { fetchApi, ValidationError } from "../../helpers/fetch";
 import { sync } from "../../helpers/SyncManager";
 import UserManager, { userType } from "../../helpers/UserManager";
 import Button from "../Button";
-import Signup from "./Signup";
-import { API_RESPONSE_TYPE } from "../../helpers/Types";
-import VerifyEmail from "./VerifyEmail";
-import { LogIn } from "lucide-react";
+import UserModal from "./UserModal";
+import { Lock } from "lucide-react";
 
-export default function Login() {
+export default function Signup() {
   const context = useContext(ContextData);
   const [buttonStates, setButtonStates] = useState({
     disabled: false,
     isLoading: false,
   });
-  async function onLogin(e: FormEvent<HTMLFormElement>) {
+  async function onSignup(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setButtonStates({
       isLoading: true,
@@ -25,7 +23,7 @@ export default function Login() {
     const formObj = Object.fromEntries(formData.entries());
 
     try {
-      const data = (await fetchApi("/auth/login", {
+      const data = (await fetchApi("/auth/signup", {
         method: "POST",
         body: JSON.stringify(formObj),
       })) as { token: string; data: userType };
@@ -36,17 +34,8 @@ export default function Login() {
       sync();
     } catch (err) {
       if (err instanceof ValidationError) {
+        console.log(Object.values(err.errors)[0]);
         const errorMessage = err.errors.message;
-
-        if (err.errors.error == API_RESPONSE_TYPE.EMAIL_NOT_VERIFIED) {
-          context?.setIsModalOpen(
-            <VerifyEmail
-              email={formObj?.email?.toString()}
-              password={formObj?.password?.toString()}
-            />
-          );
-          context?.setModalTitle("Verify Email");
-        }
 
         context.setNotification({
           type: "error",
@@ -62,15 +51,21 @@ export default function Login() {
       });
     }
   }
-
-  const onCreateAccountClick = () => {
-    context?.setIsModalOpen(<Signup />);
-    context?.setModalTitle("Create Account");
+  const onLoginLinkClick = () => {
+    context?.setIsModalOpen(<UserModal />);
+    context?.setModalTitle("Login");
   };
-
   return (
     <div>
-      <form onSubmit={onLogin}>
+      <form onSubmit={onSignup}>
+        <div className="mb-4 w-full">
+          <input
+            className="input-rounded input input-sm"
+            type="text"
+            name="fullName"
+            placeholder="Enter your full name"
+          />
+        </div>
         <div className="mb-4 w-full">
           <input
             className="input-rounded input input-sm"
@@ -91,24 +86,26 @@ export default function Login() {
           <div className="flex items-center justify-between">
             <div>
               <Button
-                icon={<LogIn size={18} />}
-                label="Login"
+                icon={<Lock size={18} />}
+                label="Signup"
                 type="submit"
                 className="btn btn-primary"
                 {...buttonStates}
               />
             </div>
             <div>
-              <a href="#">Forgot password</a>
+              <a href="#" onClick={onLoginLinkClick}>
+                I have account already. Login now
+              </a>
             </div>
           </div>
         </div>
-        <div className="mb-4 text-center w-full">
+        {/* <div className="mb-4 text-center w-full">
           <a href="#" className="text-white" onClick={onCreateAccountClick}>
             Don&apos;t have account now. <br />
             Create free account right now
           </a>
-        </div>
+        </div> */}
       </form>
     </div>
   );

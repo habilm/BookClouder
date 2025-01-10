@@ -1,5 +1,5 @@
 import { updateIcon } from "./helpers/ChromFunctions";
-import { Link } from "./helpers/LinksManager";
+import LinksManger, { Link } from "./helpers/LinksManager";
 import { sync } from "./helpers/SyncManager";
 import UserManager from "./helpers/UserManager";
 import { receiveFromWorker } from "./helpers/WorkerCommunication";
@@ -14,17 +14,23 @@ chrome.commands.onCommand.addListener(async (command) => {
   }
 });
 
-receiveFromWorker<Link>("onLinkCreated", async function () {
+let setTimeoutId: NodeJS.Timeout | number = 0;
+
+const doSyncLink = async function () {
   // We won't immediately call to cloud to create. we will wait some time and call the create API. in order to avoid unnecessary API calls if user delete the link immediately.
+  clearTimeout(setTimeoutId);
   const users = new UserManager();
   if (await users.getCurrentUser())
-    setTimeout(async function () {
+    setTimeoutId = setTimeout(async function () {
       sync();
-    }, 0);
-});
-receiveFromWorker("onLinkDeleted", function (message) {
-  console.log("message received from test2", message);
-});
+      const links = new LinksManger();
+      console.log(await links.getAll());
+    }, 1000);
+};
+
+receiveFromWorker<Link>("onLinkCreated", doSyncLink);
+receiveFromWorker("onLinkDeleted", doSyncLink);
+receiveFromWorker("onLinkUpdated", doSyncLink);
 
 /**
  * Change the Icon when the user already bookmarked.
