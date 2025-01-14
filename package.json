@@ -1,6 +1,6 @@
 {
   "name": "bookclouder",
-  "version": "1.0.0",
+  "version": "1.5.2",
   "description": "En extension to save your bookmarks in cloud and sync with browsers.",
   "main": "index.js",
   "scripts": {

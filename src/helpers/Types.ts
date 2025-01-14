@@ -1,6 +1,7 @@
 export type NotificationTypes = {
   type: "error" | "warning" | "info" | "success";
   message: string;
+  notificationPopupTimeOut?: number;
 };
 
 export enum API_RESPONSE_TYPE {

@@ -1,13 +1,13 @@
+import { LogIn } from "lucide-react";
 import React, { FormEvent, useContext, useState } from "react";
 import { ContextData } from "../../helpers/ContextApi";
 import { fetchApi, ValidationError } from "../../helpers/fetch";
 import { sync } from "../../helpers/SyncManager";
+import { API_RESPONSE_TYPE } from "../../helpers/Types";
 import UserManager, { userType } from "../../helpers/UserManager";
 import Button from "../Button";
 import Signup from "./Signup";
-import { API_RESPONSE_TYPE } from "../../helpers/Types";
 import VerifyEmail from "./VerifyEmail";
-import { LogIn } from "lucide-react";
 
 export default function Login() {
   const context = useContext(ContextData);

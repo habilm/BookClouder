@@ -6,17 +6,15 @@ import UserManager, { userType } from "../../helpers/UserManager";
 export default function UserModal() {
   const [currentUser, setCurrentUser] = useState<userType | false>(false);
 
-  async function onUserChange() {}
-
   useEffect(() => {
     (async () => {
       const user = new UserManager();
       setCurrentUser(await user.getCurrentUser());
       user.onChange(async () => {
-        await onUserChange();
+        setCurrentUser(await user.getCurrentUser());
       });
     })();
-  }, []);
+  }, [currentUser]);
 
   return <>{currentUser ? <Profile currentUser={currentUser} /> : <Login />}</>;
 }

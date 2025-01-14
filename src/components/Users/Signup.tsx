@@ -1,11 +1,9 @@
+import { Lock } from "lucide-react";
 import React, { FormEvent, useContext, useState } from "react";
 import { ContextData } from "../../helpers/ContextApi";
 import { fetchApi, ValidationError } from "../../helpers/fetch";
-import { sync } from "../../helpers/SyncManager";
-import UserManager, { userType } from "../../helpers/UserManager";
 import Button from "../Button";
 import UserModal from "./UserModal";
-import { Lock } from "lucide-react";
 
 export default function Signup() {
   const context = useContext(ContextData);
@@ -23,15 +21,16 @@ export default function Signup() {
     const formObj = Object.fromEntries(formData.entries());
 
     try {
-      const data = (await fetchApi("/auth/signup", {
+      const data = await fetchApi<{ message: string }>("/auth/signup", {
         method: "POST",
         body: JSON.stringify(formObj),
-      })) as { token: string; data: userType };
-
-      const user = new UserManager();
-      await user.save(data.data, data.token);
-
-      sync();
+      });
+      context.setNotification({
+        type: "success",
+        message: data.message,
+        notificationPopupTimeOut: 20000,
+      });
+      onLoginLinkClick();
     } catch (err) {
       if (err instanceof ValidationError) {
         console.log(Object.values(err.errors)[0]);
@@ -100,12 +99,6 @@ export default function Signup() {
             </div>
           </div>
         </div>
-        {/* <div className="mb-4 text-center w-full">
-          <a href="#" className="text-white" onClick={onCreateAccountClick}>
-            Don&apos;t have account now. <br />
-            Create free account right now
-          </a>
-        </div> */}
       </form>
     </div>
   );
